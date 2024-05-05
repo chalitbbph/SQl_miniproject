@@ -1,0 +1,43 @@
+create database sale_on_fb;
+use sale_on_fb;
+show tables;
+RENAME TABLE live_20210128 to fb_live_data;
+-- CHECK TABLE VALS
+SELECT * FROM fb_live_data;
+-- DROP UNUSE TABLE
+ALTER TABLE fb_live_data
+DROP COLUMN Column1,
+DROP COLUMN Column2,
+DROP COLUMN Column3,
+DROP COLUMN Column4;
+--CHECK NUM REACTIONS ==THE NUMBER OF STICKERS
+select *, (num_likes + num_loves + num_wows + num_hahas + num_sads + num_angrys) as num_tot_like
+ from fb_live_data;
+
+-- Which type of status  tends to receive more reactions on average?
+ SELECT status_type, COUNT(*) as tot_reactions
+ FROM fb_live_data
+ GROUP BY status_type;
+--create table to sub the output
+CREATE TABLE status_data(
+	post_type VARCHAR(64),
+	tot_reaction INT
+);
+INSERT INTO status_data(post_type,tot_reaction)
+ SELECT status_type, COUNT(*) as tot_reactions
+ FROM fb_live_data
+ GROUP BY status_type;
+
+-- The one who pubish first has a better chance of getting more paticipate;
+
+
+CREATE TABLE chance_publish_first (
+    status_published DATETIME,
+    id INT,
+    participation INT
+);
+
+INSERT INTO chance_publish_first (id, status_published, participation)
+SELECT status_id, STR_TO_DATE(status_published, '%m/%d/%Y %H:%i'), (num_comments + num_reactions + num_shares) AS participation 
+FROM fb_live_data
+;
